@@ -78,8 +78,8 @@ for y in range(1, 11):
         maps.append(a)
 
 for x in range(1, 11):
-    a = c.create_text(26+50*x, 29, text=A[x-1], justify=CENTER, font="Verdana 32")
-    a = c.create_text(26, 26+50*x, text=str(x), justify=CENTER, font="Verdana 32")
+    a = c.create_text(26+50*x, 29, text=A[x-1], justify=CENTER, font="Verdana 24")
+    a = c.create_text(26, 26+50*x, text=str(x), justify=CENTER, font="Verdana 24")
 
 
 c.bind('<Button-1>', canvas_lmb)
