@@ -1,13 +1,94 @@
-from openpyxl import load_workbook
-from openpyxl import Workbook
-from openpyxl.styles import Border, Side, PatternFill, Font, GradientFill, Alignment
+from openpyxl import load_workbook, Workbook
+from openpyxl.styles import Border, Side, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
+
+from openpyxl import *
+from tkinter import filedialog
+from tkinter import *
+
+
+
+inotab = "ETOPAHKCBeopakc"
+outtab = "ЕТОРАНКСВеоракс"
+trantab = str.maketrans(inotab, outtab)
+
+#str = "ghbdtn vbh"
+#print (str.translate(trantab, 'xm'))
+
+
+#Modules - cписок, содержит списки модулей в каждом шкафу
+#SelectedFiles - список имен файлов, выбранных через диалоговое окно
+
+root = Tk()
+
+SelectedFiles = filedialog.askopenfilenames(initialdir = "/",title = "Выбор файлов серийников модулей",filetypes = (("xlsx","*.xlsx"),("all files","*.*")))
+print ("Выбраны файлы:")
+for i in SelectedFiles:
+    print(i)
+print ("")
+
+Modules =[]
+NamesBoxs = []
+for file in SelectedFiles:
+    print("Обрабатывается файл {0} ...".format(file))
+    wb = load_workbook(file)
+    ws = wb[wb.sheetnames[0]]
+
+    print("Поиск имени шкафа ...")
+    #Поиск имени в первой строке
+    for row in ws.iter_rows(min_row=1, max_row=1):
+        for cell in row:
+            temp = cell.value
+            #print(temp)
+            if temp != None:
+                if re.search('[a-zA-Z]', temp):
+                    print("АХТУНГ!! {0}, {1}".format(temp, re.findall('[a-zA-Z]', temp)))
+                    print("АХТУНГ!!. Исправление...")
+                    temp = temp.translate(trantab)
+                    if re.search('[a-zA-Z]', temp):
+                        print("АХТУНГ!!. Исправление...Провал!")
+                    else:
+                        print("АХТУНГ!!. Исправлено!")
+                if "ПТ" in temp:
+                    print("Найдено имя шкафа: {0}".format(cell.value))
+    print("")
+
+    print("Поиск модулей...")
+    b = []
+    typeModule=''
+    for row in ws.rows:
+
+        placeModule = row[1].value
+        typeModule = row[2].value
+
+        if placeModule != None and len(placeModule)>3 and typeModule != None and len(typeModule) > 2:
+            #print("Обрабатываем строку")
+            if placeModule[0] == 'A' and (placeModule[2] == '.' or placeModule[3] == '.') and typeModule[:2] != 'CH':
+                b.append([placeModule,typeModule])
+                print ([placeModule,typeModule])
+    Modules.append(b)
+    print("")
+
+for case in Modules:
+    for mod in case:
+        print(mod)
+
+
+
+
+
+
+
+
+
+
+
+
 
 wb = load_workbook(filename='ser ПТ-2.КЦ.xlsx')
 
 ws = wb.active
 
-li = []
 for row in ws.values:
     for value in row:
         s = ''
