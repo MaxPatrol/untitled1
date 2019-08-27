@@ -1,40 +1,34 @@
-from openpyxl import load_workbook, Workbook
+from openpyxl import *
 from openpyxl.styles import Border, Side, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
-from openpyxl import *
 from tkinter import filedialog
 from tkinter import *
-
-
 
 inotab = "ETOPAHKCBeopakc"
 outtab = "ЕТОРАНКСВеоракс"
 trantab = str.maketrans(inotab, outtab)
 
-#str = "ghbdtn vbh"
-#print (str.translate(trantab, 'xm'))
-
-
-#Modules - cписок, содержит списки модулей в каждом шкафу
+#Boxs -  [ ["NameBox1",[ ["NameRack1",[ListModules]], ["NameRack2",[ListModules]]...]], ...]
 #SelectedFiles - список имен файлов, выбранных через диалоговое окно
 
 root = Tk()
 
-SelectedFiles = filedialog.askopenfilenames(initialdir = "/",title = "Выбор файлов серийников модулей",filetypes = (("xlsx","*.xlsx"),("all files","*.*")))
+SelectedFiles = filedialog.askopenfilenames(initialdir = "",title = "Выбор файлов серийников модулей",filetypes = (("xlsx","*.xlsx"),("all files","*.*")))
 print ("Выбраны файлы:")
 for i in SelectedFiles:
     print(i)
 print ("")
 
-Modules =[]
-NamesBoxs = []
+Boxs =[]
 for file in SelectedFiles:
     print("Обрабатывается файл {0} ...".format(file))
     wb = load_workbook(file)
     ws = wb[wb.sheetnames[0]]
 
     print("Поиск имени шкафа ...")
+    NameBox=''
+    Box = []
     #Поиск имени в первой строке
     for row in ws.iter_rows(min_row=1, max_row=1):
         for cell in row:
@@ -50,28 +44,59 @@ for file in SelectedFiles:
                     else:
                         print("АХТУНГ!!. Исправлено!")
                 if "ПТ" in temp:
-                    print("Найдено имя шкафа: {0}".format(cell.value))
+                    NameBox=temp
+                    Box.append(NameBox)
+                    print("Найдено имя шкафа: {0}".format(temp))
     print("")
 
     print("Поиск модулей...")
-    b = []
-    typeModule=''
+    pairsPlaceType = []
     for row in ws.rows:
-
         placeModule = row[1].value
         typeModule = row[2].value
-
         if placeModule != None and len(placeModule)>3 and typeModule != None and len(typeModule) > 2:
             #print("Обрабатываем строку")
             if placeModule[0] == 'A' and (placeModule[2] == '.' or placeModule[3] == '.') and typeModule[:2] != 'CH':
-                b.append([placeModule,typeModule])
-                print ([placeModule,typeModule])
-    Modules.append(b)
+                pairsPlaceType.append([placeModule, typeModule])
+                #print ([placeModule,typeModule])
+
+    print("Поиск корзин...")
+
+    NameRacks = []
+
+    Racks =[]
+    for item in pairsPlaceType:
+        if (item[0][:2] in NameRacks)== FALSE:
+            NameRacks.append(item[0][:2])
+    #print(NameRacks)
+
+    for item in NameRacks:
+        modules=[]
+        Rack =[]
+        Rack.append(item)
+        for item2 in pairsPlaceType:
+            if (item == item2[0][:2]):
+                modules.append(item2[1])
+        print("Корзина {0}: {1}".format(item,modules))
+        Rack.append(modules)
+        Racks.append(Rack)
+
+    print("")
+    Box.append(Racks)
+    Boxs.append(Box)
+
+Boxs = sorted(Boxs, key=lambda a: a[0])
+print("Результаты: ")
+for item in Boxs:
+    print("Шкаф: {0}".format(item[0]))
+    for item2 in item[1]:
+        print("Корзина: {0}".format(item2[0]))
+
+        for item3 in item2[1]:
+            print(item3)
+        print("")
     print("")
 
-for case in Modules:
-    for mod in case:
-        print(mod)
 
 
 
@@ -81,31 +106,22 @@ for case in Modules:
 
 
 
+# wb = load_workbook(filename='ser ПТ-2.КЦ.xlsx')
+#
+# ws = wb.active
+#
+# for row in ws.values:
+#     for value in row:
+#         s = ''
+#         if ("ПТ" in str(value)):
+#             print('ups'+str(value)[str(value).find("ПТ"):str(value).find("ПТ")+3])
+#             #li.append(str(valuse))
+#         print(value)
+#     # print(row)
 
-
-
-
-wb = load_workbook(filename='ser ПТ-2.КЦ.xlsx')
-
-ws = wb.active
-
-for row in ws.values:
-    for value in row:
-        s = ''
-        if ("ПТ" in str(value)):
-            print('ups'+str(value)[str(value).find("ПТ"):str(value).find("ПТ")+3])
-            #li.append(str(valuse))
-        print(value)
-    # print(row)
-
-
-
-
-# Номер последней корзины
-LastRack = 8
-###########################
-###########################
-###########################
+##############################################
+#Запись результатов в файл
+##############################################
 
 
 # Cоздаем файл для записи результатов
@@ -119,7 +135,7 @@ ws = wb.active
 #Серая заливка неиспользуемых ячеек
 
 a= PatternFill("solid", fgColor="808080")
-for i in range(36):
+for i in range(204):
     tc = ws.cell(row=i + 1, column=1)
     tc.fill = a
     tc = ws.cell(row=i + 1, column=31)
@@ -130,7 +146,7 @@ for i in range(36):
     tc.fill = a
 
 for i in range(30):
-    for i2 in range(5, 36,6):
+    for i2 in range(5, 204,6):
         tc = ws.cell(row=i2, column=i+1)
         tc.fill = a
         tc = ws.cell(row=i2+1, column=i+1)
@@ -143,7 +159,7 @@ for i in range(29):
     ws.column_dimensions[get_column_letter(3+i)].width = 8
 
 # Установка высоты строк
-for i in range(1, 36,6):
+for i in range(1, 204,6):
     ws.row_dimensions[i].height = 11
     ws.row_dimensions[i+1].height = 73
     ws.row_dimensions[i+2].height = 9
@@ -171,6 +187,47 @@ for i in a:
     ws.merge_cells(start_row=i[1], start_column=30, end_row=i[1]+9, end_column=30)
 
 
+#################################
+#Заполняем шкаф КЦ данными
+#################################
+i1=1
+for item in Boxs[0][1]:
+    print (item)
+    ws.cell(i1  , 2, Boxs[0][0])
+    ws.cell(i1  , 3,item[0])
+    ws.cell(i1+2  , 2,"Начальный адрес")
+    ws.cell(i1+3  , 2,"Конечный адрес")
+    i3=4
+    for item2 in item[1]:
+        print ("R500 "+item2)
+        ws.cell(i1+1, i3, "R500 "+item2)
+        i3 = i3 +1
+    i1 = i1 + 6
+print("")
+print("")
+#################################
+#Заполняем остальные шкафы
+#################################
+i1=37
+for item0 in Boxs[1:]:
+    for item in item0[1]:
+        print (item)
+        ws.cell(i1  , 2, item0[0])
+        ws.cell(i1+2  , 2,"Начальный адрес")
+        ws.cell(i1+3  , 2,"Конечный адрес")
+        tc = ws.cell(i1,3,item[0])
+        tc.border = all_border_cell;
+        tc.alignment = centred_cell_style
+        ws.merge_cells(start_row=i1, start_column=3, end_row=i1+3, end_column=3)
+
+        i3=4
+        for item2 in item[1]:
+            print ("R500 "+item2)
+            ws.cell(i1+1, i3, "R500 "+item2)
+            i3 = i3 +1
+        i1 = i1 + 6
 
 
+
+print('Запись файла')
 wb.save(filename=dest_filename)
