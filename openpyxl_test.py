@@ -129,6 +129,7 @@ wb = Workbook()
 
 dest_filename = 'empty_book.xlsx'
 ws = wb.active
+ws.title = 'Модули'
 
 #Шаблон для КЦ(обязательный)
 
@@ -227,7 +228,51 @@ for item0 in Boxs[1:]:
             i3 = i3 +1
         i1 = i1 + 6
 
+#################################
+#Обработка ТБ
+################################
+SelectedFiles = filedialog.askopenfilenames(initialdir = "",title = "Выбор файлов ТБ",filetypes = (("xlsx","*.xlsx"),("all files","*.*")))
+print ("Выбраны файлы:")
+for i in SelectedFiles:
+    print(i)
+print ("")
 
+wb = load_workbook(SelectedFiles[0])
+ws = wb[wb.sheetnames[0]]
+TBs=[]
+
+for row in ws.rows:
+    tb =[]
+    for item in row[:5]:
+        tb.append(item.value)
+    TBs.append(tb)
+
+for item in TBs:
+    if item ==['Идентификатор', 'Наименование сигнала', '№ Корзины', '№ модуля в корзине', '№ канала в модуле']:
+        print ("Поддвержден патерн ТБ")
+
+
+
+for item in TBs:
+    if item ==[1,2,3,4,5]:
+        print ("Определно начало данных {0}".format(TBs.index([1,2,3,4,5])))
+
+for i in range(TBs.index([1,2,3,4,5])+1):
+    TBs.pop(0)
+
+for item in TBs:
+    if item ==[None, None, None, None, None]:
+        TBs.remove(item)
+for item in TBs:
+    if item ==[None, None, None, None, None]:
+        TBs.remove(item)
+
+for item in TBs:
+    print (item)
+
+print(len(TBs))
+
+ws2 = wb.create_sheet(title="Аналоги")
 
 print('Запись файла')
 wb.save(filename=dest_filename)
