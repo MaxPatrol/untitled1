@@ -2,6 +2,8 @@ from openpyxl import *
 from openpyxl.styles import Border, Side, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
+from pprint import pprint
+
 from tkinter import filedialog
 from tkinter import *
 
@@ -98,26 +100,6 @@ for item in Boxs:
     print("")
 
 
-
-
-
-
-
-
-
-
-# wb = load_workbook(filename='ser ПТ-2.КЦ.xlsx')
-#
-# ws = wb.active
-#
-# for row in ws.values:
-#     for value in row:
-#         s = ''
-#         if ("ПТ" in str(value)):
-#             print('ups'+str(value)[str(value).find("ПТ"):str(value).find("ПТ")+3])
-#             #li.append(str(valuse))
-#         print(value)
-#     # print(row)
 
 ##############################################
 #Запись результатов в файл
@@ -231,46 +213,103 @@ for item0 in Boxs[1:]:
 #################################
 #Обработка ТБ
 ################################
+AI=[]
+DI=[]
+DO=[]
 SelectedFiles = filedialog.askopenfilenames(initialdir = "",title = "Выбор файлов ТБ",filetypes = (("xlsx","*.xlsx"),("all files","*.*")))
 print ("Выбраны файлы:")
 for i in SelectedFiles:
     print(i)
 print ("")
 
-wb = load_workbook(SelectedFiles[0])
-ws = wb[wb.sheetnames[0]]
-TBs=[]
-
-for row in ws.rows:
-    tb =[]
-    for item in row[:5]:
-        tb.append(item.value)
-    TBs.append(tb)
-
-for item in TBs:
-    if item ==['Идентификатор', 'Наименование сигнала', '№ Корзины', '№ модуля в корзине', '№ канала в модуле']:
-        print ("Поддвержден патерн ТБ")
+rawTBs=[]
+TBs =[]
+for file in SelectedFiles:
+    rawTBs =[]
+    print("Обрабатывается файл {0} ...".format(file))
+    wb = load_workbook(file)
+    ws = wb[wb.sheetnames[0]]
 
 
+    print("Поиск имени шкафа...")
+    for row in ws.iter_rows(min_row=1, max_row=2):
+        for cell in row:
+            temp = cell.value
+            #print(temp)
+            if temp != None:
+                if re.search('[a-zA-Z]', temp):
+                    print("АХТУНГ!! {0}, {1}".format(temp, re.findall('[a-zA-Z]', temp)))
+                    print("АХТУНГ!!. Исправление...")
+                    temp = temp.translate(trantab)
+                    if re.search('[a-zA-Z]', temp):
+                        print("АХТУНГ!!. Исправление...Провал!")
+                    else:
+                        print("АХТУНГ!!. Исправлено!")
+                if "ПТ" in temp:
+                    NameBox=temp
+                    Box.append(NameBox)
+                    print("Найдено имя шкафа: {0}".format(temp))
+    print("")
 
-for item in TBs:
-    if item ==[1,2,3,4,5]:
-        print ("Определно начало данных {0}".format(TBs.index([1,2,3,4,5])))
 
-for i in range(TBs.index([1,2,3,4,5])+1):
-    TBs.pop(0)
+    for row in ws.rows:
+        tb =[]
+        for item in row[:5]:
+            tb.append(item.value)
+        rawTBs.append(tb)
 
-for item in TBs:
-    if item ==[None, None, None, None, None]:
-        TBs.remove(item)
-for item in TBs:
-    if item ==[None, None, None, None, None]:
-        TBs.remove(item)
+    for item in rawTBs:
+        if item ==['Идентификатор', 'Наименование сигнала', '№ Корзины', '№ модуля в корзине', '№ канала в модуле']:
+            print ("Поддвержден патерн ТБ")
 
-for item in TBs:
-    print (item)
 
-print(len(TBs))
+
+    for item in rawTBs:
+        if item ==[1,2,3,4,5]:
+            print ("Определно начало данных {0}".format(rawTBs.index([1, 2, 3, 4, 5])))
+
+    for i in range(rawTBs.index([1, 2, 3, 4, 5]) + 1):
+        rawTBs.pop(0)
+
+    a=[]
+    for item in rawTBs:
+        if item not in a:
+            a.append(item)
+    rawTBs =a
+    rawTBs.remove([None, None, None, None, None])
+
+    # for item in rawTBs:
+    #     print (item)
+
+    print(len(rawTBs))
+
+    print("Поиск AI...")
+
+    for item in rawTBs:
+        if (item[4][:2] == "AI") and (item[1] != None) and (item[1].lower() != "резерв") :
+            AI.append(item)
+
+    print("Поиск DO...")
+
+    for item in rawTBs:
+        if (item[4][:2] == "DO"): #and (item[1] != None) and (item[1].lower() != "резерв") :
+            DO.append(item)
+
+DO = sorted(DO,key=lambda a:a[1])
+
+AI = sorted(AI,key=lambda a:a[1])
+
+for item in AI:
+    print(item)
+print("")
+
+for item in DO:
+    print(item)
+
+
+
+
+#pprint(TBs)
 
 ws2 = wb.create_sheet(title="Аналоги")
 
