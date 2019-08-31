@@ -296,6 +296,7 @@ for file in SelectedFiles:
             DO.append(item)
 
 DO = sorted(DO,key=lambda a:a[1])
+
 AI = sorted(AI,key=lambda a:a[1])
 
 for item in AI:
