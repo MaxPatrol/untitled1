@@ -292,8 +292,12 @@ for file in SelectedFiles:
     print("Поиск DO...")
 
     for item in rawTBs:
-        if (item[4][:2] == "DO"): #and (item[1] != None) and (item[1].lower() != "резерв") :
+        if (item[4][:2] == "DO") and (item[1] != None) and (item[1].lower() != "резерв") :
             DO.append(item)
+
+
+
+
 
 DO = sorted(DO,key=lambda a:a[1])
 
@@ -306,7 +310,39 @@ print("")
 for item in DO:
     print(item)
 
+print ("Поиск защищаемых зон...")
 
+
+temp1=[]
+for item in DO:
+    if ("сигнал в" in item[1].lower()):
+        a=''
+        a = item[1]
+        a=re.sub(' \(.*?\)',"", a,1)
+        #print(m[0])
+        #a = a.replace(m[0]," ")
+        print(a)
+        temp1.append(a)
+
+
+
+
+a = set(temp1[0])
+
+for item in temp1:
+    a = a & set(item)
+    print(a)
+
+print("")
+
+b = set(temp1[0]) - a
+for item in temp1:
+    b =  (set(item) - a) & b
+
+    if b== set():
+        print("kkkk")
+        b = set(item) - a
+    print(b)
 
 
 #pprint(TBs)
