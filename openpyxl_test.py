@@ -310,39 +310,61 @@ print("")
 for item in DO:
     print(item)
 
+print ("")
 print ("Поиск защищаемых зон...")
-
-
-temp1=[]
+print ("")
+# Правило 1.
+# Находим все DO с подстроками "пожар в " и "сигнал в"
+# выделяем в отдельный список
+Rule1=[]
 for item in DO:
-    if ("сигнал в" in item[1].lower()):
-        a=''
-        a = item[1]
-        a=re.sub(' \(.*?\)',"", a,1)
-        #print(m[0])
-        #a = a.replace(m[0]," ")
-        print(a)
-        temp1.append(a)
+    if ("сигнал в" in item[1].lower() and ("пожар в" in item[1].lower() or "пожар на" in item[1].lower())):
+        Rule1.append(item[1])
+for item in Rule1:
+    print (item)
+
+# Правило 2.
+# Вырезаем проектное обозначение защищаемых объектов, нпример, (003.2)
+# т.е. подстроку любое количество символов между скобок, включая скобки
+#TODO любое количество цифр или точка
+Rule2=[]
+for item in Rule1:
+    a=re.sub(' \(.*?\)',"", item,1)
+    a=re.sub('Пожар в ',"", a,1)
+    a=re.sub('Пожар на ',"", a,1)
+    Rule2.append(a)
+
+for item in Rule2:
+    print (item)
+
+# Правило 3.
+# Если есть точка, удаляем все что после нее, и точку тоже
+
+Rule3 = []
+for item in Rule2:
+    if "." in item:
+        b = item.find('.')
+    else:
+        b = None
+    a = item[:b]
+    Rule3.append(a)
+
+for item in Rule3:
+    print (item)
+
+# Правило 4.
+# Убираем дубликаты
+
+Rule4 = []
+for item in Rule3:
+    if item not in Rule4:
+        Rule4.append(item)
+
+for item in Rule4:
+    print (item)
 
 
 
-
-a = set(temp1[0])
-
-for item in temp1:
-    a = a & set(item)
-    print(a)
-
-print("")
-
-b = set(temp1[0]) - a
-for item in temp1:
-    b =  (set(item) - a) & b
-
-    if b== set():
-        print("kkkk")
-        b = set(item) - a
-    print(b)
 
 
 #pprint(TBs)
