@@ -14,6 +14,8 @@ trantab = str.maketrans(inotab, outtab)
 #Boxs -  [ ["NameBox1",[ ["NameRack1",[ListModules]], ["NameRack2",[ListModules]]...]], ...]
 #SelectedFiles - список имен файлов, выбранных через диалоговое окно
 
+
+
 root = Tk()
 
 SelectedFiles = filedialog.askopenfilenames(initialdir = "",title = "Выбор файлов серийников модулей",filetypes = (("xlsx","*.xlsx"),("all files","*.*")))
@@ -52,13 +54,16 @@ for file in SelectedFiles:
     print("")
 
     print("Поиск модулей...")
+    #TODO Упростить до поиска по шаблону модуля
     pairsPlaceType = []
     for row in ws.rows:
         placeModule = row[1].value
         typeModule = row[2].value
         if placeModule != None and len(placeModule)>3 and typeModule != None and len(typeModule) > 2:
             #print("Обрабатываем строку")
-            if placeModule[0] == 'A' and (placeModule[2] == '.' or placeModule[3] == '.') and typeModule[:2] != 'CH':
+
+
+            if placeModule[0] == 'A' and (placeModule[2] == '.' or placeModule[3] == '.') and re.search('(ST|PP|CU|DI|AI|DO|CP) \d{2} \d{3}',typeModule):
                 pairsPlaceType.append([placeModule, typeModule])
                 #print ([placeModule,typeModule])
 
@@ -171,7 +176,7 @@ for i in a:
 
 
 #################################
-#Заполняем шкаф КЦ данными
+# Заполняем шкаф КЦ данными
 #################################
 i1=1
 for item in Boxs[0][1]:
@@ -189,7 +194,7 @@ for item in Boxs[0][1]:
 print("")
 print("")
 #################################
-#Заполняем остальные шкафы
+# Заполняем остальные шкафы
 #################################
 i1=37
 for item0 in Boxs[1:]:
